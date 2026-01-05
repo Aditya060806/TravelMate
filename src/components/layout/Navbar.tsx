@@ -19,13 +19,13 @@ export const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 glass-effect">
       <div className="section-container flex h-16 items-center justify-between">
-        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+        <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg glow-primary group-hover:scale-105 transition-transform">
             <span className="text-primary-foreground font-bold text-sm">T</span>
           </div>
-          <span className="font-semibold text-lg hidden sm:block">TravelMate</span>
+          <span className="font-semibold text-lg hidden sm:block bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">TravelMate</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -49,13 +49,17 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg badge-success">
                 <Shield className="w-3.5 h-3.5 text-success" />
                 <span className="text-sm font-medium">{profile?.trustScore || 50}%</span>
               </div>
               <Link to="/profile">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary hover:bg-primary/20 transition-colors">
-                  {profile?.displayName?.charAt(0) || user.email?.charAt(0) || "U"}
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center text-sm font-medium text-primary border border-primary/30 hover:from-primary/30 hover:to-blue-500/30 transition-all hover:scale-105">
+                  {profile?.photoURL ? (
+                    <img src={profile.photoURL} alt="" className="w-full h-full rounded-full" />
+                  ) : (
+                    profile?.displayName?.charAt(0) || user.email?.charAt(0) || "U"
+                  )}
                 </div>
               </Link>
             </>

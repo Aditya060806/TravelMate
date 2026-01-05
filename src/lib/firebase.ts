@@ -13,6 +13,18 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID"
 };
 
+// Validate Firebase configuration
+const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY" && 
+                    firebaseConfig.projectId !== "YOUR_PROJECT_ID";
+
+if (!isConfigured && import.meta.env.DEV) {
+  console.warn(
+    "⚠️ Firebase not configured!\n" +
+    "Please create a .env file with your Firebase credentials.\n" +
+    "See QUICK_START.md for setup instructions."
+  );
+}
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -20,6 +32,15 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Configure Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
+// Add scopes if needed
+googleProvider.addScope('profile');
+googleProvider.addScope('email');
+// Set custom parameters
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export default app;

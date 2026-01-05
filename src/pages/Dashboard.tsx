@@ -40,7 +40,9 @@ const Dashboard = () => {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Quick Calculator */}
-              <div className="card-base p-5">
+              <div className="card-base p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold">Quick Exchange</h2>
                   <Link to="/exchange" className="text-sm text-primary hover:text-primary/80">
@@ -72,10 +74,13 @@ const Dashboard = () => {
                     +0.3%
                   </span>
                 </div>
+                </div>
               </div>
 
               {/* Quick Rooms */}
-              <div className="card-base p-5">
+              <div className="card-base p-5 relative overflow-hidden">
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-success/10 rounded-full blur-3xl -ml-16 -mb-16" />
+                <div className="relative z-10">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold">Featured Rooms</h2>
                   <Link to="/rooms" className="text-sm text-primary hover:text-primary/80">
@@ -111,33 +116,37 @@ const Dashboard = () => {
                     </motion.div>
                   ))}
                 </div>
+                </div>
               </div>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Trust Score */}
-              <div className="card-base p-5">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-primary" />
+              <div className="card-base p-5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-success/10 rounded-full blur-2xl -mr-12 -mt-12" />
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center border border-success/30 glow-success">
+                      <Shield className="w-5 h-5 text-success" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-gradient-success">{profile?.trustScore || 50}%</div>
+                      <div className="text-sm text-muted-foreground">Trust Score</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold">{profile?.trustScore || 50}%</div>
-                    <div className="text-sm text-muted-foreground">Trust Score</div>
+                  <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-success to-success/80 rounded-full transition-all shadow-lg"
+                      style={{ width: `${profile?.trustScore || 50}%` }}
+                    />
                   </div>
+                  <Link to="/profile">
+                    <Button variant="outline" size="sm" className="w-full mt-4 hover:bg-primary/10 hover:border-primary/50 transition-all">
+                      View Profile
+                    </Button>
+                  </Link>
                 </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full transition-all"
-                    style={{ width: `${profile?.trustScore || 50}%` }}
-                  />
-                </div>
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="w-full mt-4">
-                    View Profile
-                  </Button>
-                </Link>
               </div>
 
               {/* Alerts */}
@@ -171,25 +180,25 @@ const Dashboard = () => {
                 <h2 className="font-semibold mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-2 gap-2">
                   <Link to="/exchange">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all">
                       <TrendingUp className="w-3.5 h-3.5" />
                       Exchange
                     </Button>
                   </Link>
                   <Link to="/rooms">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all">
                       <Home className="w-3.5 h-3.5" />
                       Find Room
                     </Button>
                   </Link>
                   <Link to="/messages">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all">
                       <MessageSquare className="w-3.5 h-3.5" />
                       Messages
                     </Button>
                   </Link>
                   <Link to="/profile">
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full hover:bg-primary/10 hover:border-primary/50 transition-all">
                       <Star className="w-3.5 h-3.5" />
                       Profile
                     </Button>

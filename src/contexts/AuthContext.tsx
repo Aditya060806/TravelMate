@@ -123,22 +123,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async (role: UserRole = 'student') => {
-    const { user } = await signInWithPopup(auth, googleProvider);
-    
-    // Check if profile exists
-    const docRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(docRef);
-    
-    if (!docSnap.exists()) {
-      await createUserProfile(
-        user.uid,
-        user.email || '',
-        user.displayName || '',
-        role,
-        user.photoURL || undefined
-      );
-    } else {
-      setProfile(docSnap.data() as UserProfile);
+    try {
+      const { user } = await signInWithPopup(auth, googleProvider);
+      
+      // Check if profile exists
+      const docRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        await createUserProfile(
+          user.uid,
+          user.email || '',
+          user.displayName || '',
+          role,
+          user.photoURL || undefined
+        );
+      } else {
+        setProfile(docSnap.data() as UserProfile);
+      }
+    } catch (error: any) {
+      // Handle popup blocked or COOP errors gracefully
+      if (error.code === 'auth/popup-blocked') {
+        throw new Error('Popup was blocked by browser. Please allow popups for this site.');
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        throw new Error('Sign-in was cancelled.');
+      } else if (error.message?.includes('Cross-Origin-Opener-Policy')) {
+        // COOP warning - this is usually just a warning, try to continue
+        console.warn('COOP policy warning (non-blocking):', error.message);
+        // The sign-in might still succeed, so we don't throw here
+        throw error;
+      }
+      throw error;
     }
   };
 

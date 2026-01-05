@@ -1,37 +1,113 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Search, Star, Shield, Clock, TrendingUp, MessageSquare, Bookmark, BookmarkCheck } from "lucide-react";
+import { ArrowRight, Search, Star, Shield, Clock, TrendingUp, MessageSquare, Bookmark, BookmarkCheck, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Navbar } from "@/components/layout/Navbar";
-
-const exchangeOffers = [
-  { id: 1, user: "Priya S.", avatar: "PS", type: "sell", amount: 50000, rate: 104.2, trust: 96, trades: 42, time: "2m ago" },
-  { id: 2, user: "Rahul M.", avatar: "RM", type: "buy", amount: 30000, rate: 104.8, trust: 91, trades: 28, time: "5m ago" },
-  { id: 3, user: "Ananya K.", avatar: "AK", type: "sell", amount: 100000, rate: 103.9, trust: 98, trades: 67, time: "8m ago" },
-  { id: 4, user: "Vikram P.", avatar: "VP", type: "buy", amount: 75000, rate: 105.1, trust: 88, trades: 15, time: "12m ago" },
-  { id: 5, user: "Sneha R.", avatar: "SR", type: "sell", amount: 25000, rate: 104.5, trust: 94, trades: 35, time: "15m ago" },
-];
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
+import { exchangeService, ExchangeOffer } from "@/lib/services/exchangeService";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 
 const Exchange = () => {
+  const { user, profile } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [inrAmount, setInrAmount] = useState("50000");
   const [filter, setFilter] = useState<"all" | "buy" | "sell">("all");
   const [search, setSearch] = useState("");
-  const [savedOffers, setSavedOffers] = useState<number[]>([]);
-
-  const rate = 104.52;
-  const gbpAmount = inrAmount ? (parseFloat(inrAmount.replace(/,/g, '')) / rate).toFixed(2) : "0.00";
-
-  const filteredOffers = exchangeOffers.filter(offer => {
-    const matchesFilter = filter === "all" || offer.type === filter;
-    const matchesSearch = offer.user.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+  const [savedOffers, setSavedOffers] = useState<string[]>([]);
+  const [offers, setOffers] = useState<ExchangeOffer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [newOffer, setNewOffer] = useState({
+    type: "sell" as "buy" | "sell",
+    amount: "",
+    rate: "104.5",
   });
 
-  const toggleSaved = (id: number) => {
+  // Calculate average rate from offers or use default
+  const avgRate = offers.length > 0 
+    ? offers.reduce((sum, o) => sum + o.rate, 0) / offers.length 
+    : 104.52;
+  const rate = avgRate;
+  const gbpAmount = inrAmount ? (parseFloat(inrAmount.replace(/,/g, '')) / rate).toFixed(2) : "0.00";
+
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = exchangeService.subscribeToOffers((updatedOffers) => {
+      setOffers(updatedOffers);
+      setLoading(false);
+    }, filter === "all" ? undefined : { type: filter });
+
+    return () => unsubscribe();
+  }, [user, filter]);
+
+  const filteredOffers = offers.filter(offer => {
+    const matchesSearch = offer.userDisplayName.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch;
+  });
+
+  const toggleSaved = (id: string) => {
     setSavedOffers(prev => 
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
+  };
+
+  const handleCreateOffer = async () => {
+    if (!user || !profile) {
+      toast({ title: "Please sign in", variant: "destructive" });
+      return;
+    }
+
+    if (!newOffer.amount || !newOffer.rate) {
+      toast({ title: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+
+    setCreating(true);
+    try {
+      await exchangeService.createOffer({
+        userId: user.uid,
+        userDisplayName: profile.displayName,
+        userAvatar: profile.photoURL,
+        userTrustScore: profile.trustScore,
+        type: newOffer.type,
+        amount: parseFloat(newOffer.amount),
+        rate: parseFloat(newOffer.rate),
+        status: "active",
+        completedTrades: profile.completedExchanges || 0,
+      });
+      toast({ title: "Offer created successfully!" });
+      setCreateDialogOpen(false);
+      setNewOffer({ type: "sell", amount: "", rate: "104.5" });
+    } catch (error: any) {
+      toast({ title: "Error creating offer", description: error.message, variant: "destructive" });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleContact = (offer: ExchangeOffer) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    navigate(`/messages?userId=${offer.userId}`);
+  };
+
+  const getTimeAgo = (date: Date) => {
+    try {
+      return formatDistanceToNow(date, { addSuffix: true });
+    } catch {
+      return "recently";
+    }
   };
 
   return (
@@ -96,9 +172,56 @@ const Exchange = () => {
                   </div>
                 </div>
 
-                <Button className="w-full mt-5">
-                  Create Exchange Offer
-                </Button>
+                <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full mt-5 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Exchange Offer
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="glass-effect">
+                    <DialogHeader>
+                      <DialogTitle>Create Exchange Offer</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Type</Label>
+                        <Select value={newOffer.type} onValueChange={(v: "buy" | "sell") => setNewOffer({ ...newOffer, type: v })}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sell">Selling INR</SelectItem>
+                            <SelectItem value="buy">Buying INR</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Amount (INR)</Label>
+                        <Input
+                          type="number"
+                          placeholder="50000"
+                          value={newOffer.amount}
+                          onChange={(e) => setNewOffer({ ...newOffer, amount: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Rate (₹ per £)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="104.5"
+                          value={newOffer.rate}
+                          onChange={(e) => setNewOffer({ ...newOffer, rate: e.target.value })}
+                        />
+                      </div>
+                      <Button onClick={handleCreateOffer} disabled={creating} className="w-full">
+                        {creating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                        Create Offer
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -131,77 +254,100 @@ const Exchange = () => {
 
               {/* Offers */}
               <div className="space-y-3">
-                {filteredOffers.map((offer, i) => (
-                  <motion.div
-                    key={offer.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="card-hover p-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                          {offer.avatar}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{offer.user}</span>
-                            <span className="badge-success text-xs">
-                              <Shield className="w-3 h-3" />
-                              {offer.trust}%
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                            <span className="flex items-center gap-1">
-                              <Star className="w-3 h-3" />
-                              {offer.trades} trades
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {offer.time}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <div className={`text-xs font-medium px-2 py-0.5 rounded mb-1 ${
-                          offer.type === "sell" 
-                            ? "bg-success/10 text-success" 
-                            : "bg-primary/10 text-primary"
-                        }`}>
-                          {offer.type === "sell" ? "Selling INR" : "Buying INR"}
-                        </div>
-                        <div className="font-semibold">₹{offer.amount.toLocaleString()}</div>
-                        <div className="text-xs text-muted-foreground">@ ₹{offer.rate}/£</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                      <Button size="sm" className="flex-1">
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        Contact
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => toggleSaved(offer.id)}
-                      >
-                        {savedOffers.includes(offer.id) ? (
-                          <BookmarkCheck className="w-4 h-4 text-primary" />
-                        ) : (
-                          <Bookmark className="w-4 h-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
-
-                {filteredOffers.length === 0 && (
+                {loading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+                    <p className="text-muted-foreground">Loading offers...</p>
+                  </div>
+                ) : filteredOffers.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <p>No offers found matching your criteria</p>
+                    {user && (
+                      <Button 
+                        className="mt-4" 
+                        onClick={() => setCreateDialogOpen(true)}
+                        variant="outline"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create First Offer
+                      </Button>
+                    )}
                   </div>
+                ) : (
+                  filteredOffers.map((offer, i) => (
+                    <motion.div
+                      key={offer.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="card-hover p-4"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center text-sm font-medium text-primary border border-primary/30">
+                            {offer.userAvatar ? (
+                              <img src={offer.userAvatar} alt="" className="w-full h-full rounded-full" />
+                            ) : (
+                              offer.userDisplayName?.charAt(0) || "U"
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{offer.userDisplayName}</span>
+                              <span className="badge-success text-xs">
+                                <Shield className="w-3 h-3" />
+                                {offer.userTrustScore}%
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
+                              <span className="flex items-center gap-1">
+                                <Star className="w-3 h-3" />
+                                {offer.completedTrades || 0} trades
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {getTimeAgo(offer.createdAt as Date)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className={`text-xs font-medium px-2 py-0.5 rounded mb-1 ${
+                            offer.type === "sell" 
+                              ? "bg-success/10 text-success border border-success/20" 
+                              : "bg-primary/10 text-primary border border-primary/20"
+                          }`}>
+                            {offer.type === "sell" ? "Selling INR" : "Buying INR"}
+                          </div>
+                          <div className="font-semibold">₹{offer.amount.toLocaleString()}</div>
+                          <div className="text-xs text-muted-foreground">@ ₹{offer.rate}/£</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
+                        <Button 
+                          size="sm" 
+                          className="flex-1 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
+                          onClick={() => handleContact(offer)}
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          Contact
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => offer.id && toggleSaved(offer.id)}
+                        >
+                          {offer.id && savedOffers.includes(offer.id) ? (
+                            <BookmarkCheck className="w-4 h-4 text-primary" />
+                          ) : (
+                            <Bookmark className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))
                 )}
               </div>
             </div>

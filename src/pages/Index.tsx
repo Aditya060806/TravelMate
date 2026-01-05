@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 glass-effect">
       <div className="section-container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg glow-primary group-hover:scale-105 transition-transform">
             <span className="text-primary-foreground font-bold text-sm">T</span>
           </div>
-          <span className="font-semibold text-lg">TravelMate</span>
+          <span className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">TravelMate</span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-6">
@@ -44,12 +44,16 @@ const HeroSection = () => {
           transition={{ duration: 0.5 }}
           className="max-w-3xl"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-success" />
-            <span className="text-xs text-muted-foreground">Trusted by 5,000+ Indian students in London</span>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full badge-success mb-6 animate-pulse-glow"
+          >
+            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+            <span className="text-xs font-medium">Trusted by 5,000+ Indian students in London</span>
+          </motion.div>
           
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight">
             Exchange money. <br />
             <span className="text-gradient">Find your nest.</span>
           </h1>
@@ -60,13 +64,13 @@ const HeroSection = () => {
 
           <div className="flex flex-wrap gap-3">
             <Link to="/exchange">
-              <Button size="lg">
+              <Button size="lg" className="bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 shadow-lg hover:shadow-xl transition-all glow-primary">
                 Start Exchanging
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Link>
             <Link to="/rooms">
-              <Button variant="outline" size="lg">Find Roommates</Button>
+              <Button variant="outline" size="lg" className="border-2 hover:bg-primary/10 hover:border-primary/50 transition-all">Find Roommates</Button>
             </Link>
           </div>
         </motion.div>
@@ -79,14 +83,20 @@ const HeroSection = () => {
           className="grid grid-cols-3 gap-8 mt-16 max-w-lg"
         >
           {[
-            { value: "£2.5M+", label: "Exchanged Monthly" },
-            { value: "1,200+", label: "Active Listings" },
-            { value: "98%", label: "Trust Score" },
+            { value: "£2.5M+", label: "Exchanged Monthly", gradient: "text-gradient" },
+            { value: "1,200+", label: "Active Listings", gradient: "text-gradient-success" },
+            { value: "98%", label: "Trust Score", gradient: "text-gradient-warm" },
           ].map((stat, i) => (
-            <div key={i}>
-              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
-            </div>
+            <motion.div 
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 }}
+              className="card-base p-4 text-center"
+            >
+              <div className={`text-2xl font-bold ${stat.gradient}`}>{stat.value}</div>
+              <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
+            </motion.div>
           ))}
         </motion.div>
       </div>
@@ -126,7 +136,9 @@ const ExchangePreview = () => {
           </div>
 
           {/* Exchange Calculator */}
-          <div className="card-base p-6">
+          <div className="card-base p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
+            <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <span className="text-sm text-muted-foreground">Current Rate</span>
               <div className="flex items-center gap-2">
@@ -174,8 +186,11 @@ const ExchangePreview = () => {
             </div>
 
             <Link to="/exchange" className="block mt-6">
-              <Button className="w-full">Find Exchange Partners</Button>
+              <Button className="w-full bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 shadow-lg hover:shadow-xl transition-all">
+                Find Exchange Partners
+              </Button>
             </Link>
+            </div>
           </div>
         </div>
       </div>
