@@ -1,73 +1,119 @@
-# Welcome to your Lovable project
+# 🧳 TravelMate
 
-## Project info
+**TravelMate** - The trusted platform for Indian students in London. Peer-to-peer INR ⇄ GBP currency exchange and verified roommate discovery — zero paperwork required.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## ✨ Features
 
-## How can I edit this code?
+- 💱 **Currency Exchange**: Peer-to-peer INR ⇄ GBP exchange at real rates
+- 🏠 **Roommate Discovery**: Find verified accommodation from fellow Indian students
+- 💬 **Real-time Messaging**: Connect with exchange partners and room providers
+- 🛡️ **Trust System**: Behavior-based trust scores, no document uploads needed
+- 🔐 **Secure Authentication**: Email/password and Google Sign-In
+- 📱 **Responsive Design**: Works seamlessly on all devices
 
-There are several ways of editing your application.
+## 🚀 Quick Start
 
-**Use Lovable**
+### Prerequisites
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- Node.js 18+ and npm
+- Firebase project (see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md))
 
-Changes made via Lovable will be committed automatically to this repo.
+### Installation
 
-**Use your preferred IDE**
+```bash
+# Clone the repository
+git clone https://github.com/Aditya060806/TravelMate.git
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# Navigate to project directory
+cd TravelMate
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+# Install dependencies
+npm install
 
-Follow these steps:
+# Create .env file with Firebase credentials
+# See .env.example for template
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📚 Documentation
 
-**Use GitHub Codespaces**
+- [Firebase Setup Guide](./FIREBASE_SETUP.md) - Complete Firebase configuration
+- [Quick Start Guide](./QUICK_START.md) - Fast setup instructions
+- [Vercel Deployment](./VERCEL_DEPLOYMENT.md) - Deploy to Vercel
+- [Firestore Indexes](./CREATE_FIRESTORE_INDEXES.md) - Database index setup
+- [Google Sign-In Fix](./GOOGLE_SIGNIN_FIX.md) - Troubleshooting guide
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🛠️ Tech Stack
 
-## What technologies are used for this project?
+- **Frontend**: React 18 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Routing**: React Router v6
+- **Backend**: Firebase (Auth, Firestore, Storage)
+- **State Management**: React Query (TanStack Query)
+- **Animations**: Framer Motion
+- **Forms**: React Hook Form + Zod
 
-This project is built with:
+## 📦 Project Structure
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+├── components/     # Reusable UI components
+├── contexts/       # React contexts (Auth)
+├── hooks/          # Custom React hooks
+├── lib/            # Utilities and Firebase config
+│   └── services/   # Firebase service layer
+├── pages/          # Page components
+└── main.tsx        # App entry point
+```
 
-## How can I deploy this project?
+## 🔧 Available Scripts
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-## Can I connect a custom domain to my Lovable project?
+## 🌐 Deployment
 
-Yes, you can!
+### Vercel (Recommended)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+See [VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md) for detailed instructions.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add Firebase environment variables
+4. Deploy!
+
+## 🔐 Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is private and proprietary.
+
+## 🙏 Acknowledgments
+
+Built with ❤️ for the Indian student community in London.
+
+---
+
+**TravelMate** - Exchange money. Find your nest. 🏠💱
