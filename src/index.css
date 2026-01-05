@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Refined dark theme - not too dark */
+    --background: 220 16% 12%;
+    --foreground: 210 20% 98%;
+
+    --card: 220 16% 14%;
+    --card-foreground: 210 20% 98%;
+
+    --popover: 220 16% 13%;
+    --popover-foreground: 210 20% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 220 16% 6%;
+
+    --secondary: 220 14% 18%;
+    --secondary-foreground: 210 20% 90%;
+
+    --muted: 220 14% 20%;
+    --muted-foreground: 215 14% 55%;
+
+    --accent: 220 14% 22%;
+    --accent-foreground: 210 20% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 20% 98%;
+
+    --success: 142 70% 45%;
+    --success-foreground: 210 20% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 16% 6%;
+
+    --border: 220 14% 20%;
+    --input: 220 14% 18%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 220 16% 10%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 220 16% 6%;
+    --sidebar-accent: 220 14% 18%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .input-field {
+    @apply w-full h-11 px-4 rounded-lg bg-secondary border border-border 
+           text-foreground placeholder:text-muted-foreground
+           focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary
+           transition-all duration-150;
+  }
+
+  .card-base {
+    @apply bg-card border border-border rounded-xl;
+  }
+
+  .card-hover {
+    @apply card-base transition-all duration-200 hover:border-primary/30 hover:bg-card/80;
+  }
+
+  .badge-status {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply badge-status bg-success/10 text-success border border-success/20;
+  }
+
+  .badge-warning {
+    @apply badge-status bg-warning/10 text-warning border border-warning/20;
+  }
+
+  .badge-info {
+    @apply badge-status bg-primary/10 text-primary border border-primary/20;
+  }
+
+  .link-text {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400;
+  }
+}
+
+@layer utilities {
+  .animate-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
